@@ -38,6 +38,8 @@ setup(
         "construct_design/formatting",
         "construct_design/logging",
         "construct_design/processing",
+        "construct_design/rld",
+        "construct_design/rnamake",
     ],
     include_package_data=True,
     install_requires=requirements,

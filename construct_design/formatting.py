@@ -1,6 +1,8 @@
 import shutil
 from tabulate import tabulate
 
+from seq_tools.dataframe import calc_edit_distance
+
 
 def centered_box(text):
     # Get terminal size
@@ -32,5 +34,40 @@ def padded_text(text):
     return padded_string
 
 
-def library_summary(df):
-    pass
+def libraries_table(dfs, names, edit_dist=False):
+    data = []
+    i = 0
+    for df in dfs:
+        current_data = [
+            names[i],
+            len(df),
+            df["sequence"].str.len().mean(),
+            df["sequence"].str.len().min(),
+            df["sequence"].str.len().max(),
+        ]
+        if "ens_defect" in df.columns:
+            current_data.append(df["ens_defect"].mean())
+            current_data.append(df["ens_defect"].min())
+            current_data.append(df["ens_defect"].max())
+        if edit_dist:
+            current_data.append(calc_edit_distance(df))
+        data.append(current_data)
+        i += 1
+    headers = [
+        "name",
+        "# seqs",
+        "avg len",
+        "min len",
+        "max len",
+    ]
+    if "ens_defect" in df.columns:
+        headers.extend(
+            [
+                "avg ens_defect",
+                "min ens_defect",
+                "max ens_defect",
+            ]
+        )
+    if edit_dist:
+        headers.append("edit_dist")
+    return tabulate(data, headers=headers)

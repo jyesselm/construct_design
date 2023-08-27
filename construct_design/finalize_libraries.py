@@ -1,8 +1,10 @@
 import os
 import glob
 from pathlib import Path
+import pandas as pd
 
 from construct_design.logger import get_logger
+from construct_design.formatting import libraries_table
 
 
 log = get_logger("FINALIZE-LIBRARIES")
@@ -30,6 +32,9 @@ def create_final_directory(target_dir):
 
 
 def finalize_opools(target_dir="final", csvs=None):
+    """
+    finalize constructs that will be ordered as opools from IDT
+    """
     create_final_directory(target_dir)
     if csvs is None:
         log.info(
@@ -42,6 +47,22 @@ def finalize_opools(target_dir="final", csvs=None):
             )
             return
     log.info(f"Finalizing {len(csvs)} opools")
-    data = []
+    dfs = []
+    names = []
     for csv in csvs:
         name = Path(csv).parent.name
+        df = pd.read_csv(csv)
+        df.to_csv(f"{target_dir}/rna/{name}.csv", index=False)
+        df = df[["name", "sequence"]]
+        df["sequence"] = [
+            "TTCTAATACGACTCACTATA" + x.replace("U", "T") for x in df["sequence"]
+        ]
+        df.to_csv(f"{target_dir}/dna/{name}.csv", index=False)
+        # reset name to pool name for opool order
+        df["name"] = name
+        df = df.rename(columns={"name": "Pool name", "sequence": "Sequence"})
+        dfs.append(df)
+        names.append(name)
+    log.info("\n" + libraries_table(dfs, names))
+    log.info(f"Writing {len(dfs)} opools to {target_dir}/order/opools.xlsx")
+    df.to_excel(f"{target_dir}/order/opools.xlsx", index=False)
