@@ -34,10 +34,10 @@ setup(
     ],
     package_dir={"construct_design": "construct_design"},
     py_modules=[
-        "construct_design/finalize_libraries",
+        "construct_design/finalize",
         "construct_design/formatting",
         "construct_design/logging",
-        "construct_design/processing",
+        "construct_design/preprocessing",
         "construct_design/rld",
         "construct_design/rnamake",
     ],
