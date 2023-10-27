@@ -37,7 +37,9 @@ def padded_text(text):
 def libraries_table(dfs, names, edit_dist=False):
     data = []
     i = 0
+    saved_df = None
     for df in dfs:
+        saved_df = df
         current_data = [
             names[i],
             len(df),
@@ -60,7 +62,7 @@ def libraries_table(dfs, names, edit_dist=False):
         "min len",
         "max len",
     ]
-    if "ens_defect" in df.columns:
+    if "ens_defect" in saved_df.columns:
         headers.extend(
             [
                 "avg ens_defect",

@@ -34,28 +34,15 @@ def create_final_directory(target_dir):
         os.makedirs(f"{target_dir}/order", exist_ok=True)
 
 
-def finalize_opools(target_dir="final", csvs=None):
+def finalize_opools(dfs, target_dir="final"):
     """
     finalize constructs that will be ordered as opools from IDT
     """
     create_final_directory(target_dir)
-    if csvs is None:
-        log.info(
-            "No csvs provided to finalize_opools assuming they are in final/rld_output"
-        )
-        csvs = glob.glob("final/rld_output/*/results-rna.csv")
-        if len(csvs) == 0:
-            log.error(
-                "No csvs found in final/rld_output/*/results-rna.csv, skipping opools"
-            )
-            return
-    log.info(f"Finalizing {len(csvs)} opools")
-    dfs = []
+    log.info(f"Finalizing {len(dfs)} opools")
     dfs_order = []
     names = []
-    for csv in csvs:
-        name = Path(csv).parent.name
-        df = pd.read_csv(csv)
+    for name, df in dfs.items():
         df.to_csv(f"{target_dir}/rna/{name}.csv", index=False)
         df = df[["name", "sequence"]]
         df["sequence"] = [

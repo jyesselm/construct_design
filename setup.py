@@ -42,7 +42,7 @@ setup(
         "construct_design/rnamake",
     ],
     include_package_data=True,
-    install_requires=requirements,
+    #install_requires=requirements,
     zip_safe=False,
     keywords="construct_design",
     classifiers=[
