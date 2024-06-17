@@ -8,7 +8,14 @@ from construct_design.logger import get_logger
 log = get_logger("PROCESSING")
 
 
-def fix_column_names_in_dataframe(df):
+def fix_column_names_in_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    standardizes column names in a dataframe. No spaces and all lowercase
+    :param df: input dataframe
+    :type df: pd.DataFrame
+    :return: pd.Dataframe
+    """
+    df = df.copy()
     df.columns = df.columns.str.replace(" ", "_").str.lower()
     if "seq" in df.columns:
         log.info("Renaming seq to sequence")
@@ -18,6 +25,12 @@ def fix_column_names_in_dataframe(df):
         df = df.rename(columns={"ss": "structure"})
     log.info("Standardizing column names. No spaces and all lowercase")
     df.columns = df.columns.str.replace(" ", "_").str.lower()
+    if "name" not in df.columns:
+        log.info("Adding name column in the format of seq_#")
+        df["name"] = [f"seq_{x}" for x in range(len(df))]
+    # make sure the most important columns are first
+    columns_to_move = ["name", "sequence", "structure"]
+    df = df[columns_to_move + [col for col in df.columns if col not in columns_to_move]]
     return df
 
 
@@ -39,6 +52,8 @@ def get_dataframes_from_directory(path) -> Dict[str, pd.DataFrame]:
         log.info(f"{name}: contains {len(df)} rows")
         log.info(f"{name}: contains columns [{' '.join(df.columns.to_list())}]")
         dfs[name] = df
+    if len(dfs) == 0:
+        log.error(f"No csv files found in {path}")
     return dfs
 
 

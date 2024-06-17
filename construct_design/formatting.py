@@ -5,6 +5,7 @@ from seq_tools.dataframe import calc_edit_distance
 
 
 def centered_box(text):
+    """ """
     # Get terminal size
     columns, rows = shutil.get_terminal_size()
     columns -= 30

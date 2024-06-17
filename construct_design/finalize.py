@@ -13,7 +13,7 @@ from construct_design.formatting import libraries_table
 log = get_logger("FINALIZE-LIBRARIES")
 
 
-def create_final_directory(target_dir):
+def create_final_directory(target_dir: str) -> None:
     """
     create the final directory and subdirectories if they do not exist
     """
@@ -41,22 +41,19 @@ def finalize_opools(dfs, target_dir="final"):
     create_final_directory(target_dir)
     log.info(f"Finalizing {len(dfs)} opools")
     dfs_order = []
-    names = []
     for name, df in dfs.items():
         df.to_csv(f"{target_dir}/rna/{name}.csv", index=False)
         df = df[["name", "sequence"]]
         df["sequence"] = [
             "TTCTAATACGACTCACTATA" + x.replace("U", "T") for x in df["sequence"]
         ]
-        dfs.append(df)
-        names.append(name)
         df.to_csv(f"{target_dir}/dna/{name}.csv", index=False)
         # reset name to pool name for opool order
         df["name"] = name
         df = df.rename(columns={"name": "Pool name", "sequence": "Sequence"})
         dfs_order.append(df)
 
-    log.info("\n" + libraries_table(dfs, names))
+    log.info("\n" + libraries_table(list(dfs.values()), list(dfs.keys())))
     log.info(f"Writing {len(dfs)} opools to {target_dir}/order/opools.xlsx")
     df = pd.concat(dfs_order)
     df.to_excel(f"{target_dir}/order/opools.xlsx", index=False)
@@ -69,6 +66,7 @@ def finalize_agilent(dfs, target_dir="final"):
     create_final_directory(target_dir)
     log.info(f"Finalizing {len(dfs)} agilent libraries")
     for name, df in dfs.items():
+        df.to_csv(f"{target_dir}/rna/{name}.csv", index=False)
         df = df[["name", "sequence"]].copy()
         df["sequence"] = [
             "TTCTAATACGACTCACTATA" + x.replace("U", "T") for x in df["sequence"]
