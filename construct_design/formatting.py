@@ -1,11 +1,59 @@
 import shutil
+import os
+import sys
+import functools
+import pandas as pd
 from tabulate import tabulate
 
 from seq_tools.dataframe import calc_edit_distance
 
+from construct_design.logger import get_logger, setup_logging
 
-def centered_box(text):
-    """ """
+
+log = get_logger("formatting")
+
+
+def log_and_setup(func):
+    """
+    Decorator to set up logging and log the start and end of the function execution.
+
+    Args:
+        func (callable): The function to wrap.
+
+    Returns:
+        callable: The wrapped function with logging and setup.
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        func_name = func.__name__
+        os.makedirs("logs", exist_ok=True)
+        if os.path.exists(f"logs/{func_name}.log"):
+            os.remove(f"logs/{func_name}.log")
+        setup_logging(file_name=f"logs/{func_name}.log")
+        log.info("Ran at commandline as: %s", " ".join(sys.argv))
+        log.info("\n" + centered_box(func_name.upper()))
+        log.info("starting time: %s" % pd.Timestamp.now())
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            log.info(f"{func_name} execution completed.")
+            print("-" * 80)
+        return result
+
+    return wrapper
+
+
+def centered_box(text: str) -> str:
+    """Creates a centered box with the given text.
+
+    Args:
+        text (str): The text to be displayed in the centered box.
+
+    Returns:
+        str: The centered box as a string.
+
+    """
     # Get terminal size
     columns, rows = shutil.get_terminal_size()
     columns -= 30
@@ -24,7 +72,15 @@ def centered_box(text):
     return txt
 
 
-def padded_text(text):
+def padded_text(text: str) -> str:
+    """Pads the given text with dashes to fit the terminal width.
+
+    Args:
+        text (str): The text to be padded.
+
+    Returns:
+        str: The padded string.
+    """
     # Get terminal width
     columns, _ = shutil.get_terminal_size()
     columns -= 30
@@ -32,6 +88,7 @@ def padded_text(text):
     num_dashes = columns - len(text)
     # Create the padded string
     padded_string = text + "-" * num_dashes
+    log.info(f"Padded text: {padded_string}")
     return padded_string
 
 

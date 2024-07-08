@@ -10,7 +10,7 @@ from construct_design.logger import get_logger
 from construct_design.formatting import libraries_table
 
 
-log = get_logger("FINALIZE-LIBRARIES")
+log = get_logger("finalize")
 
 
 def create_final_directory(target_dir: str) -> None:
