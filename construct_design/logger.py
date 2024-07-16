@@ -33,7 +33,7 @@ def setup_logging(file_name: str = None) -> logging.Logger:
         None
     """
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)  # Set the root logger level
+    root_logger.setLevel(logging.INFO)  # Set the root logger level
 
     # Create a stream handler for output to console
     console_handler = logging.StreamHandler(sys.stdout)

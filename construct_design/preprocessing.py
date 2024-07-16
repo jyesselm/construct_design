@@ -49,27 +49,33 @@ def fix_column_names_in_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_dataframes_from_directory(path) -> Dict[str, pd.DataFrame]:
-    """
-    gets all dataframes from a directory based on csvs. Returns as a dictionary
-    with the name of the csv as the key and the dataframe as the value
+def get_constructs_from_directory(path: str) -> pd.DataFrame:
+    """Get dataframes from a directory based on CSV files.
 
-    :param path: path to directory
+    Args:
+        path (str): Path to the directory.
+
+    Returns:
+        pd.DataFrame: Concatenated dataframe containing all the CSV data.
+
+    Raises:
+        ValueError: If no CSV files are found in the directory.
     """
     log.info(f"Getting dataframes from {path}")
     csvs = glob.glob(f"{path}/*.csv")
-    log.info(f"{path} contains {len(csvs)} csv files")
-    dfs = {}
+    log.info(f"{path} contains {len(csvs)} CSV files")
+    dfs = []
     for csv in csvs:
         name = Path(csv).stem
         df = pd.read_csv(csv)
         log.info(f"Reading {csv}")
         log.info(f"{name}: contains {len(df)} rows")
         log.info(f"{name}: contains columns [{' '.join(df.columns.to_list())}]")
-        dfs[name] = df
+        df["construct"] = name
+        dfs.append(df)
     if len(dfs) == 0:
-        log.error(f"No csv files found in {path}")
-    return dfs
+        raise ValueError(f"No CSV files found in {path}")
+    return pd.concat(dfs)
 
 
 def get_rld_dataframes_from_directory(path) -> Dict[str, pd.DataFrame]:
